@@ -151,7 +151,7 @@ class Message implements MessageInterface
                 $this->headerOriginals[$name] = $value;
             } else {
                 $name = $this->headerRegistry[$name];
-                $this->headerOriginals[$name] = \array_merge($this->headerOriginals[$name], $value);
+                $this->headerOriginals[$name] = \array_merge((array) $this->headerOriginals[$name], (array) $value);
             }
         }
     }
