@@ -1,0 +1,41 @@
+on:
+  pull_request: ~
+  push:
+    branches:
+      - "main"
+
+name: static analysis
+jobs:
+  phpstan:
+    name: PHPStan
+    runs-on: ubuntu-24.04
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+      - name: setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          coverage: none
+          tools: phpstan, cs2pr
+      - name: download dependencies
+        uses: ramsey/composer-install@v2
+      - name: PHPStan
+        run: phpstan analyze --no-progress --error-format=checkstyle | cs2pr
+
+  php-cs-fixer:
+    name: php-cs-fixer
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          coverage: none
+          tools: php-cs-fixer:3.62, cs2pr
+      - name: php-cs-fixer version
+        run: php-cs-fixer --version
+      - name: php-cs-fixer
+        run: php-cs-fixer fix --dry-run --format=checkstyle | cs2pr

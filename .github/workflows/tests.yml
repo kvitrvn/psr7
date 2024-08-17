@@ -1,0 +1,21 @@
+on:
+  pull_request: ~
+  push:
+    branches:
+      - "main"
+jobs:
+  phpunit:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+      - name: setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          coverage: none
+          tools: phpunit:11.3
+      - name: download dependencies
+        uses: ramsey/composer-install@v2
+      - name: Run PHPUnit
+        run: ./vendor/bin/phpunit
