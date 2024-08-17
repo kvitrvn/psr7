@@ -121,7 +121,7 @@ class Message implements MessageInterface
     public function getBody(): StreamInterface
     {
         if (null === $this->body) {
-            // TODO: return an instance of StreamInterface implementation
+            $this->body = new Stream();
         }
 
         return $this->body;
