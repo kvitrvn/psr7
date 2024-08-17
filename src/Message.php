@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Kvitrvn\Psr7;
 
-use http\Encoding\Stream;
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;
 
 /**
  * PSR-7 Message implementation.
- * Common functionality to request & response
+ * Common functionality to request & response.
  *
  * @see https://www.php-fig.org/psr/psr-7/#31-psrhttpmessagemessageinterface
  *
@@ -21,16 +20,16 @@ class Message implements MessageInterface
     private string $protocolVersion = '1.1';
 
     /**
-     * @var array<string, string|string[]> $headerOriginals ['original_header_name' => [...values], ...]
+     * @var array<string, string|string[]> ['original_header_name' => [...values], ...]
      */
     private array $headerOriginals = [];
 
     /**
-     * @var array<string, string> $headerRegistry [lowercase(original_header_name) => original_header_name, ...]
+     * @var array<string, string> [lowercase(original_header_name) => original_header_name, ...]
      */
     private array $headerRegistry = [];
 
-    private StreamInterface|null $body;
+    private ?StreamInterface $body;
 
     public function getProtocolVersion(): string
     {
@@ -75,7 +74,7 @@ class Message implements MessageInterface
 
     public function getHeaderLine(string $name): string
     {
-        return implode(', ', $this->getHeader($name));
+        return \implode(', ', $this->getHeader($name));
     }
 
     public function withHeader(string $name, $value): MessageInterface
@@ -142,7 +141,6 @@ class Message implements MessageInterface
 
     /**
      * @param array<string, string|string[]> $headers
-     * @return void
      */
     private function setHeaders(array $headers): void
     {
@@ -153,7 +151,7 @@ class Message implements MessageInterface
                 $this->headerOriginals[$name] = $value;
             } else {
                 $name = $this->headerRegistry[$name];
-                $this->headerOriginals[$name] = array_merge($this->headerOriginals[$name], $value);
+                $this->headerOriginals[$name] = \array_merge($this->headerOriginals[$name], $value);
             }
         }
     }
