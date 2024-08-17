@@ -9,6 +9,8 @@ use Psr\Http\Message\UriInterface;
 /**
  * PSR-7 URI implementation.
  *
+ * @see https://www.php-fig.org/psr/psr-7/#35-psrhttpmessageuriinterface
+ *
  * @author Benjamin Gaudé
  */
 class Uri implements UriInterface
