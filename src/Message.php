@@ -105,6 +105,8 @@ class Message implements MessageInterface
             throw new \InvalidArgumentException('Header name cannot be empty');
         }
 
+        $value = $this->validateValue($value);
+
         $new = clone $this;
         $new->setHeaders([$name => $value]);
 
