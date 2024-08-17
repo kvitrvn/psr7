@@ -21,7 +21,7 @@ class Message implements MessageInterface
     private string $protocolVersion = '1.1';
 
     /**
-     * @var array<string, string[]> $headerOriginals ['original_header_name' => [...values], ...]
+     * @var array<string, string|string[]> $headerOriginals ['original_header_name' => [...values], ...]
      */
     private array $headerOriginals = [];
 
