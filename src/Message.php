@@ -147,7 +147,7 @@ class Message implements MessageInterface
     }
 
     /**
-     * @param array<string, string|string[]> $headers
+     * @param array<string, string[]> $headers
      */
     private function setHeaders(array $headers): void
     {
@@ -159,7 +159,7 @@ class Message implements MessageInterface
                 $this->headerOriginals[$name] = $value;
             } else {
                 $name = $this->headerRegistry[$name];
-                $this->headerOriginals[$name] = \array_merge((array)$this->headerOriginals[$name], (array)$value);
+                $this->headerOriginals[$name] = \array_merge($this->headerOriginals[$name], $value);
             }
         }
     }
@@ -171,7 +171,7 @@ class Message implements MessageInterface
     private function validateValue(string|array $value): array
     {
         if (false === is_array($value)) {
-            if (1 !== \preg_match("@^[ \t\x21-\x7E\x80-\xFF]*$@", (string) $value)) {
+            if (1 !== \preg_match("@^[ \t\x21-\x7E\x80-\xFF]*$@", $value)) {
                 throw new \InvalidArgumentException('Invalid value');
             }
             return [\trim($value, " \t")];
@@ -183,7 +183,7 @@ class Message implements MessageInterface
 
         $r = [];
         foreach ($value as $v) {
-            if (1 !== \preg_match("@^[ \t\x21-\x7E\x80-\xFF]*$@D", (string) $v)) {
+            if (1 !== \preg_match("@^[ \t\x21-\x7E\x80-\xFF]*$@D", (string)$v)) {
                 throw new \InvalidArgumentException('Invalid value');
             }
 
