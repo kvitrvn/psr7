@@ -20,7 +20,7 @@ class Message implements MessageInterface
     private string $protocolVersion = '1.1';
 
     /**
-     * @var array<string, string|string[]> ['original_header_name' => [...values], ...]
+     * @var array<string, string[]> ['original_header_name' => [...values], ...]
      */
     private array $headerOriginals = [];
 
@@ -51,6 +51,9 @@ class Message implements MessageInterface
         return $new;
     }
 
+    /**
+     * @return string[]|string[][]
+     */
     public function getHeaders(): array
     {
         return $this->headerOriginals;
@@ -61,6 +64,9 @@ class Message implements MessageInterface
         return isset($this->headerRegistry[\strtr($name, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')]);
     }
 
+    /**
+     * @return array<string>
+     */
     public function getHeader(string $name): array
     {
         if (false === $this->hasHeader($name)) {
@@ -79,6 +85,7 @@ class Message implements MessageInterface
 
     public function withHeader(string $name, $value): MessageInterface
     {
+        $value = $this->validateValue($value);
         $normalized = \strtr($name, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz');
 
         $new = clone $this;
@@ -145,14 +152,44 @@ class Message implements MessageInterface
     private function setHeaders(array $headers): void
     {
         foreach ($headers as $name => $value) {
+            $value = $this->validateValue($value);
             $normalized = \strtr($name, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz');
             if (false === $this->hasHeader($name)) {
                 $this->headerRegistry[$normalized] = $name;
                 $this->headerOriginals[$name] = $value;
             } else {
                 $name = $this->headerRegistry[$name];
-                $this->headerOriginals[$name] = \array_merge((array) $this->headerOriginals[$name], (array) $value);
+                $this->headerOriginals[$name] = \array_merge((array)$this->headerOriginals[$name], (array)$value);
             }
         }
+    }
+
+    /**
+     * @param string|string[] $value
+     * @return string[]
+     */
+    private function validateValue(string|array $value): array
+    {
+        if (false === is_array($value)) {
+            if (1 !== \preg_match("@^[ \t\x21-\x7E\x80-\xFF]*$@", (string) $value)) {
+                throw new \InvalidArgumentException('Invalid value');
+            }
+            return [\trim($value, " \t")];
+        }
+
+        if (0 === \count($value)) {
+            throw new \InvalidArgumentException('Invalid value. Value must not be a string or an array of strings, empty array given');
+        }
+
+        $r = [];
+        foreach ($value as $v) {
+            if (1 !== \preg_match("@^[ \t\x21-\x7E\x80-\xFF]*$@D", (string) $v)) {
+                throw new \InvalidArgumentException('Invalid value');
+            }
+
+            $r[] = \trim($v, " \t");
+        }
+
+        return $r;
     }
 }
