@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Kvitrvn\Psr7;
 
+use http\Encoding\Stream;
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;
 
@@ -18,6 +19,18 @@ use Psr\Http\Message\StreamInterface;
 class Message implements MessageInterface
 {
     private string $protocolVersion = '1.1';
+
+    /**
+     * @var array<string, string[]> $headerOriginals ['original_header_name' => [...values], ...]
+     */
+    private array $headerOriginals = [];
+
+    /**
+     * @var array<string, string> $headerRegistry [lowercase(original_header_name) => original_header_name, ...]
+     */
+    private array $headerRegistry = [];
+
+    private StreamInterface|null $body;
 
     public function getProtocolVersion(): string
     {
@@ -41,46 +54,107 @@ class Message implements MessageInterface
 
     public function getHeaders(): array
     {
-        // TODO: Implement getHeaders() method.
+        return $this->headerOriginals;
     }
 
     public function hasHeader(string $name): bool
     {
-        // TODO: Implement hasHeader() method.
+        return isset($this->headerRegistry[\strtr($name, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')]);
     }
 
     public function getHeader(string $name): array
     {
-        // TODO: Implement getHeader() method.
+        if (false === $this->hasHeader($name)) {
+            return [];
+        }
+
+        $normalized = \strtr($name, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz');
+
+        return $this->headerOriginals[$this->headerRegistry[$normalized]];
     }
 
     public function getHeaderLine(string $name): string
     {
-        // TODO: Implement getHeaderLine() method.
+        return implode(', ', $this->getHeader($name));
     }
 
     public function withHeader(string $name, $value): MessageInterface
     {
-        // TODO: Implement withHeader() method.
+        $normalized = \strtr($name, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz');
+
+        $new = clone $this;
+        if (false === $this->hasHeader($name)) {
+            unset($new->headerRegistry[$normalized]);
+        }
+
+        $new->headerRegistry[$normalized] = $name;
+        $new->headerOriginals[$name] = $value;
+
+        return $new;
     }
 
     public function withAddedHeader(string $name, $value): MessageInterface
     {
-        // TODO: Implement withAddedHeader() method.
+        if ('' === $name) {
+            throw new \InvalidArgumentException('Header name cannot be empty');
+        }
+
+        $new = clone $this;
+        $new->setHeaders([$name => $value]);
+
+        return $new;
     }
 
     public function withoutHeader(string $name): MessageInterface
     {
-        // TODO: Implement withoutHeader() method.
+        if (false === $this->hasHeader($name)) {
+            return $this;
+        }
+
+        $normalized = \strtr($name, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz');
+
+        $new = clone $this;
+        unset($new->headerRegistry[$normalized], $new->headerOriginals[$name]);
+
+        return $new;
     }
 
     public function getBody(): StreamInterface
     {
-        // TODO: Implement getBody() method.
+        if (null === $this->body) {
+            // TODO: return an instance of StreamInterface implementation
+        }
+
+        return $this->body;
     }
 
     public function withBody(StreamInterface $body): MessageInterface
     {
-        // TODO: Implement withBody() method.
+        if ($body === $this->body) {
+            return $this;
+        }
+
+        $new = clone $this;
+        $new->body = $body;
+
+        return $new;
+    }
+
+    /**
+     * @param array<string, string|string[]> $headers
+     * @return void
+     */
+    private function setHeaders(array $headers): void
+    {
+        foreach ($headers as $name => $value) {
+            $normalized = \strtr($name, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz');
+            if (false === $this->hasHeader($name)) {
+                $this->headerRegistry[$normalized] = $name;
+                $this->headerOriginals[$name] = $value;
+            } else {
+                $name = $this->headerRegistry[$name];
+                $this->headerOriginals[$name] = array_merge($this->headerOriginals[$name], $value);
+            }
+        }
     }
 }
