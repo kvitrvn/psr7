@@ -130,7 +130,7 @@ class Message implements MessageInterface
     public function getBody(): StreamInterface
     {
         if (null === $this->body) {
-            $this->body = new Stream();
+            $this->body = new Stream('');
         }
 
         return $this->body;
