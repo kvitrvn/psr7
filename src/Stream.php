@@ -30,21 +30,22 @@ class Stream implements StreamInterface
         ],
     ];
 
-    /** @var resource|null */
+    /** @var resource|false */
     private $stream;
     private bool $seekable = false;
     private bool $readable = false;
     private bool $writable = false;
     private ?int $size = null;
 
-    public function __construct($stream)
+    public function __construct(mixed $body)
     {
-        if (true === \is_string($stream)) {
-            $this->stream = \fopen('php://temp', 'r+');
-            \fwrite($this->stream, $stream);
-            \fseek($this->stream, 0);
-        } elseif (true === \is_resource($stream)) {
-            $this->stream = $stream;
+        if (true === \is_string($body)) {
+            if (false !== $this->stream = \fopen('php://temp', 'r+')) {
+                \fwrite($this->stream, $body);
+                \fseek($this->stream, 0);
+            }
+        } elseif (true === \is_resource($body)) {
+            $this->stream = $body;
         } else {
             throw new \InvalidArgumentException('Stream must be a resource');
         }
@@ -65,7 +66,7 @@ class Stream implements StreamInterface
 
     public function close(): void
     {
-        if (isset($this->stream)) {
+        if (false !== $this->stream) {
             \fclose($this->stream);
             $this->detach();
         }
@@ -73,7 +74,7 @@ class Stream implements StreamInterface
 
     public function detach()
     {
-        if (!isset($this->stream)) {
+        if (false === $this->stream) {
             return null;
         }
 
@@ -93,7 +94,7 @@ class Stream implements StreamInterface
             return $this->size;
         }
 
-        if (false === isset($this->stream)) {
+        if (false === $this->stream) {
             return null;
         }
 
@@ -109,7 +110,7 @@ class Stream implements StreamInterface
 
     public function tell(): int
     {
-        if (null === $this->stream) {
+        if (null === $this->stream || false === $this->stream) {
             throw new \RuntimeException('Stream is detached');
         }
 
@@ -123,7 +124,7 @@ class Stream implements StreamInterface
 
     public function eof(): bool
     {
-        if (null === $this->stream) {
+        if (null === $this->stream || false === $this->stream) {
             throw new \RuntimeException('Stream is detached');
         }
 
@@ -141,7 +142,7 @@ class Stream implements StreamInterface
             throw new \RuntimeException('Stream is not seekable.');
         }
 
-        if (null !== $this->stream && -1 === \fseek($this->stream, $offset, $whence)) {
+        if (false !== $this->stream && -1 === \fseek($this->stream, $offset, $whence)) {
             throw new \RuntimeException('Unable to seek in stream.');
         }
     }
@@ -158,7 +159,7 @@ class Stream implements StreamInterface
 
     public function write(string $string): int
     {
-        if (null === $this->stream) {
+        if (null === $this->stream || false === $this->stream) {
             throw new \RuntimeException('Stream is detached');
         }
 
@@ -182,9 +183,12 @@ class Stream implements StreamInterface
         return $this->readable;
     }
 
+    /**
+     * @param int<1, max> $length
+     */
     public function read(int $length): string
     {
-        if (null === $this->stream) {
+        if (null === $this->stream || false === $this->stream) {
             throw new \RuntimeException('Stream is detached');
         }
 
@@ -203,7 +207,7 @@ class Stream implements StreamInterface
 
     public function getContents(): string
     {
-        if (null === $this->stream) {
+        if (null === $this->stream || false === $this->stream) {
             throw new \RuntimeException('Stream is detached');
         }
 
@@ -222,7 +226,7 @@ class Stream implements StreamInterface
 
     public function getMetadata(?string $key = null)
     {
-        if (null === $this->stream) {
+        if (null === $this->stream || false === $this->stream) {
             return null === $key ? [] : null;
         }
 

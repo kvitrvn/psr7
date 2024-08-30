@@ -3,5 +3,3 @@ parameters:
 	paths:
 		- src
 		- tests
-	ignoreErrors:
-	    - '#Qualifier can be replaced with an import#'

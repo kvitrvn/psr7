@@ -18,31 +18,31 @@ class Request extends Message implements RequestInterface
 {
     public function getRequestTarget(): string
     {
-        // TODO: Implement getRequestTarget() method.
+        throw new \BadMethodCallException('Not implemented');
     }
 
     public function withRequestTarget(string $requestTarget): RequestInterface
     {
-        // TODO: Implement withRequestTarget() method.
+        throw new \BadMethodCallException('Not implemented');
     }
 
     public function getMethod(): string
     {
-        // TODO: Implement getMethod() method.
+        throw new \BadMethodCallException('Not implemented');
     }
 
     public function withMethod(string $method): RequestInterface
     {
-        // TODO: Implement withMethod() method.
+        throw new \BadMethodCallException('Not implemented');
     }
 
     public function getUri(): UriInterface
     {
-        // TODO: Implement getUri() method.
+        throw new \BadMethodCallException('Not implemented');
     }
 
     public function withUri(UriInterface $uri, bool $preserveHost = false): RequestInterface
     {
-        // TODO: Implement withUri() method.
+        throw new \BadMethodCallException('Not implemented');
     }
 }

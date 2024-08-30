@@ -168,14 +168,16 @@ class Message implements MessageInterface
 
     /**
      * @param string|string[] $value
+     *
      * @return string[]
      */
     private function validateValue(string|array $value): array
     {
-        if (false === is_array($value)) {
+        if (false === \is_array($value)) {
             if (1 !== \preg_match("@^[ \t\x21-\x7E\x80-\xFF]*$@", $value)) {
                 throw new \InvalidArgumentException('Invalid value');
             }
+
             return [\trim($value, " \t")];
         }
 
@@ -185,7 +187,7 @@ class Message implements MessageInterface
 
         $r = [];
         foreach ($value as $v) {
-            if (1 !== \preg_match("@^[ \t\x21-\x7E\x80-\xFF]*$@D", (string)$v)) {
+            if (1 !== \preg_match("@^[ \t\x21-\x7E\x80-\xFF]*$@D", (string) $v)) {
                 throw new \InvalidArgumentException('Invalid value');
             }
 
