@@ -17,17 +17,17 @@ use Psr\Http\Message\StreamInterface;
  */
 class Message implements MessageInterface
 {
-    private string $protocolVersion = '1.1';
+    protected string $protocolVersion = '1.1';
 
     /**
      * @var array<string, string[]> ['original_header_name' => [...values], ...]
      */
-    private array $headerOriginals = [];
+    protected array $headerOriginals = [];
 
     /**
      * @var array<string, string> [lowercase(original_header_name) => original_header_name, ...]
      */
-    private array $headerRegistry = [];
+    protected array $headerRegistry = [];
 
     private ?StreamInterface $body;
 
@@ -151,7 +151,7 @@ class Message implements MessageInterface
     /**
      * @param array<string, string[]> $headers
      */
-    private function setHeaders(array $headers): void
+    protected function setHeaders(array $headers): void
     {
         foreach ($headers as $name => $value) {
             $value = $this->validateValue($value);
